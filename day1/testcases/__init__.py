@@ -1,15 +1,19 @@
 from tqdm import tqdm
 
-def run_test(
-    output_file_path,
+def run_test(*args, **kwargs):
+    return [result for result in run_test_streamed(*args, **kwargs)]
+
+def run_test_streamed(
     dataset_loader,
     data_preprocessor,
     test_backend,
     prompt_backend
 ):
-    dataset = dataset_loader()
-    preprocessed_data = data_preprocessor(dataset)
-    with open(output_file_path, "w") as f:
+    try:
+        dataset = dataset_loader()
+        preprocessed_data = data_preprocessor(dataset)
         for tc in tqdm(preprocessed_data, total=len(preprocessed_data)):
             result = test_backend(tc, prompt_backend)
-            f.write(result)
+            yield result
+    except KeyboardInterrupt:
+        print("Received KeyboardInterrupt, stopping test")
