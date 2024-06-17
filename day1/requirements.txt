@@ -1,0 +1,4 @@
+llmlingua
+openai
+datasets
+tenacity
