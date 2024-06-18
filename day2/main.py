@@ -1,36 +1,42 @@
+import json
+import configparser
+
 from langchain_openai import OpenAIEmbeddings
-from langchain_community.document_loaders import WebBaseLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 
-def retrieve_documents(targets):
-    loader = WebBaseLoader(web_paths=targets)
-    return loader.load()
+from pipelines import (
+    fetch_documents,
+    split_documents
+)
 
-def get_embeddings(strings):
-    openai = OpenAIEmbeddings(model="text-embedding-3-small")
-    return openai.embed_documents(strings)
-
-def main():
-    documents_to_get = [
+def prepare_db():
+    embedding_function = OpenAIEmbeddings(model="text-embedding-3-small")
+    db = Chroma(persist_directory="./chroma_db", embedding_function=embedding_function)
+    documents_for_embedding = [
         "https://lilianweng.github.io/posts/2023-06-23-agent/",
         "https://lilianweng.github.io/posts/2023-03-15-prompt-engineering/",
         "https://lilianweng.github.io/posts/2023-10-25-adv-attack-llm/"
     ]
+    try:
+        with open("indexed_documents.json", 'r') as f:
+            indexed_documents = json.load(f)
+    except IOError:
+        indexed_documents = []
+    documents_to_fetch = [
+        url for url in documents_for_embedding
+        if url not in indexed_documents
+    ]
+    if documents_to_fetch:
+        docs = fetch_documents.run(documents_to_fetch)
+        splitted = split_documents.run(docs)
+        db.add_documents(splitted)
+        indexed_documents += documents_to_fetch
+        with open("indexed_documents.json", 'w') as f:
+            json.dump(indexed_documents, f)
+    return db
 
-    docs = retrieve_documents(documents_to_get)
+def main():
+    db = prepare_db()
 
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=100,
-        chunk_overlap=20,
-        length_function=len,
-        is_separator_regex=True,
-    )
-    splitted = [splitter.split_documents([doc]) for doc in docs]
-
-    #embeddings = [
-    #    get_embeddings([x.page_content for x in s]) for s in splitted
-    #]
-
-    embedding_function = OpenAIEmbeddings(model="text-embedding-3-small")
-    db = Chroma.from_documents(splitted[0], embedding_function)
+if __name__ == "__main__":
+    main()
