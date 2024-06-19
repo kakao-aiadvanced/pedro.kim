@@ -37,7 +37,10 @@ def run(state):
     )
     hallucination_check = chain.invoke({
         "user_query": state["user_query"],
-        "contexts": "\n\n".join(doc.page_content for doc in state["contexts"]),
+        "contexts": "\n\n".join(
+            doc if isinstance(doc, str) else doc.page_content
+            for doc in state["contexts"]
+        ),
         "response": state["response"]
     })
     return {
