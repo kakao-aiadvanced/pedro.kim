@@ -58,6 +58,8 @@ def main():
             break
         for output in workflow.stream(inputs):
             pass
+            #for key, value in output.items():
+            #    print("Finished running '{}'".format(key))
 
 if __name__ == "__main__":
     main()

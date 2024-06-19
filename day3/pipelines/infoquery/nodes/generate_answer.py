@@ -28,7 +28,10 @@ def run(state):
     response = chain.invoke({
         "user_query": state["user_query"],
         "contexts": "\n\n".join(
-            doc if isinstance(doc, str) else doc.page_content
+            "Title: {title}\n"
+            "Content: {content}\n".format(
+                title=doc["title"], content=doc["content"]
+            ) if isinstance(doc, dict) else doc.page_content
             for doc in state["contexts"]
         )
     })

@@ -11,6 +11,19 @@ from .nodes import (
 
 def print_answer(state):
     print(state["response"])
+    if state.get("searched_from_tavily"):
+        print(
+            "======== DISCLAIMER ========\n"
+            "The above response was generated using search results from "
+            "Tavily.\n\nPlease refer to following URLs for details.\n"
+        )
+        for doc in state["contexts"]:
+            print(
+                "- Title: {title}\n"
+                "- URL: {url}\n".format(
+                    title=doc["title"], url=doc["url"]
+                )
+            )
     return state
 
 def route_relevance(state):

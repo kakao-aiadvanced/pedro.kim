@@ -7,4 +7,5 @@ class InfoQueryState(TypedDict):
     response: str
     hallucination_check: dict
     vector_db: Any    # TODO: better typing
+    searched_from_tavily: bool
 
