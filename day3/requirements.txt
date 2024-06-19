@@ -1,0 +1,15 @@
+langchain-nomic
+langchain_community
+tiktoken
+langchainhub
+chromadb
+langchain
+langgraph
+tavily-python
+langchain-text-splitters
+gpt4all
+arxiv
+langchain_openai
+pymupdf
+beautifulsoup4
+langchain-chroma
